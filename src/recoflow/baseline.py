@@ -11,7 +11,7 @@ class PopularityRecommender:
     def __init__(self) -> None:
         self._ranked_items: list[str] = []
 
-    def fit(self, transactions: pd.DataFrame) -> "PopularityRecommender":
+    def fit(self, transactions: pd.DataFrame) -> PopularityRecommender:
         counts = transactions["article_id"].astype(str).value_counts()
         self._ranked_items = sorted(counts.index, key=lambda item: (-counts[item], item))
         return self
@@ -25,4 +25,3 @@ class PopularityRecommender:
     @property
     def ranked_items(self) -> list[str]:
         return self._ranked_items.copy()
-
