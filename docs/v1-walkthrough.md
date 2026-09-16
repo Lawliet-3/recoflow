@@ -70,7 +70,9 @@ are normalized, so their dot product is cosine similarity.
 
 A batch of observed user-product pairs provides in-batch negatives. The diagonal of
 the similarity matrix contains positive pairs; other products in the batch act as
-negative examples. Cross-entropy pulls the positive pairs together.
+negative examples. When an item occurs more than once in a batch, every matching copy
+is treated as positive rather than as a false negative. Cross-entropy pulls the
+positive pairs together.
 
 ## 7. Evaluate future retrieval
 
