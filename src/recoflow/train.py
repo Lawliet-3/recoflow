@@ -94,7 +94,7 @@ def _train_two_tower(
                 history_mask,
                 metadata[item_ids],
             )
-            loss = in_batch_softmax_loss(logits)
+            loss = in_batch_softmax_loss(logits, item_ids=item_ids)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
