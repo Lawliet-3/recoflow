@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "recoflow"
+version = "0.1.0"
+description = "Production-shaped recommendation retrieval for the H&M dataset"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "pyarrow>=16,<20",
+  "pydantic-settings>=2.5,<3",
+  "qdrant-client>=1.12,<2",
+  "torch>=2.3,<3",
+  "uvicorn[standard]>=0.30,<1",
+]
+
+[project.optional-dependencies]
+dev = ["httpx>=0.27,<1", "pytest>=8,<9", "ruff>=0.7,<1"]
+
+[project.scripts]
+recoflow-train = "recoflow.train:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/recoflow"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
