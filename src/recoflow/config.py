@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     qdrant_url: str = "http://localhost:6333"
     qdrant_collection: str = "products"
     embedding_dim: int = 64
+    model_version: str = "two_tower_v1"
     default_limit: int = 20
     popularity_path: str = "artifacts/popularity.json"
     user_embeddings_path: str = "artifacts/user_embeddings.npz"
@@ -17,4 +18,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-
