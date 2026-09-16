@@ -100,8 +100,19 @@ class TwoTowerModel(nn.Module):
         return users @ items.T
 
 
-def in_batch_softmax_loss(logits: Tensor, temperature: float = 0.07) -> Tensor:
+def in_batch_softmax_loss(
+    logits: Tensor,
+    item_ids: Tensor | None = None,
+    temperature: float = 0.07,
+) -> Tensor:
     if logits.ndim != 2 or logits.shape[0] != logits.shape[1]:
         raise ValueError("logits must be a square user-item matrix")
+    scaled = logits / temperature
+    if item_ids is not None:
+        if item_ids.ndim != 1 or len(item_ids) != logits.shape[0]:
+            raise ValueError("item_ids must align with the logits")
+        positive_mask = item_ids[:, None] == item_ids[None, :]
+        positive_logits = scaled.masked_fill(~positive_mask, -torch.inf)
+        return (torch.logsumexp(scaled, dim=1) - torch.logsumexp(positive_logits, dim=1)).mean()
     targets = torch.arange(logits.shape[0], device=logits.device)
-    return F.cross_entropy(logits / temperature, targets)
+    return F.cross_entropy(scaled, targets)
