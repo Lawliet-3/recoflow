@@ -195,7 +195,14 @@ def train(
     )
 
     truth = ground_truth_by_user(split.validation, set(users), set(items))
-    eval_users = sorted(truth)[:max_eval_users]
+    eligible_users = np.asarray(sorted(truth))
+    if len(eligible_users) > max_eval_users:
+        evaluation_rng = np.random.default_rng(seed)
+        eval_users = sorted(
+            evaluation_rng.choice(eligible_users, size=max_eval_users, replace=False).tolist()
+        )
+    else:
+        eval_users = eligible_users.tolist()
     truth = {user: truth[user] for user in eval_users}
     seen = seen_items_by_user(split.train)
     user_positions = [user_to_index[user] for user in eval_users]
