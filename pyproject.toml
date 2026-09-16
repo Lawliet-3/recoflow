@@ -14,7 +14,7 @@ dependencies = [
   "pandas>=2.2,<3",
   "pyarrow>=16,<20",
   "pydantic-settings>=2.5,<3",
-  "qdrant-client>=1.12,<2",
+  "qdrant-client>=1.12,<1.14",
   "torch>=2.3,<3",
   "uvicorn[standard]>=0.30,<1",
 ]
