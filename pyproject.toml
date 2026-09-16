@@ -26,6 +26,7 @@ dev = ["httpx>=0.27,<1", "pytest>=8,<9", "ruff>=0.7,<1"]
 recoflow-train = "recoflow.train:main"
 recoflow-index = "recoflow.index:main"
 recoflow-smoke = "recoflow.smoke:main"
+recoflow-backtest = "recoflow.backtest:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/recoflow"]

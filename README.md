@@ -81,7 +81,37 @@ Training produces:
 | metrics.json | Popularity, MF, and two-tower Recall/NDCG/MRR |
 | split_summary.json | Auditable row counts for each time window |
 
-## Step 2: index products
+## Step 2: validate across time
+
+Use rolling validation before consuming the final holdout week:
+
+~~~bash
+recoflow-backtest \
+  data/raw/transactions_train.csv \
+  data/raw/articles.csv \
+  --validation-folds 3 \
+  --output artifacts/rolling-validation.json
+~~~
+
+Each fold retrains using only earlier events. The report includes 95% bootstrap
+intervals, cold/warm and activity segments, catalog and user coverage, separate
+discovery and repeat-purchase results, and exact-versus-Qdrant retrieval overlap.
+
+After model choices are frozen, consume the final week exactly once:
+
+~~~bash
+recoflow-backtest \
+  data/raw/transactions_train.csv \
+  data/raw/articles.csv \
+  --validation-folds 0 \
+  --include-holdout \
+  --output artifacts/final-holdout.json
+~~~
+
+The report records `holdout_consumed: true`. Do not tune a model against that result;
+new tuning requires a new later holdout period.
+
+## Step 3: index products
 
 ~~~bash
 recoflow-index --recreate
@@ -91,7 +121,7 @@ The index command reads item_embeddings.npz, creates the cosine-distance collect
 and uploads vectors in batches. --recreate prevents products from an older artifact
 version remaining in the collection.
 
-## Step 3: serve recommendations
+## Step 4: serve recommendations
 
 ~~~bash
 uvicorn recoflow.api:app --reload
@@ -138,13 +168,15 @@ and the meaning of the evaluation metrics.
 - src/recoflow/data.py validates H&M files, splits time, and builds prefix histories.
 - src/recoflow/model.py defines matrix factorization and the two-tower encoders.
 - src/recoflow/evaluation.py performs exact offline retrieval and ranking metrics.
+- src/recoflow/backtest.py runs rolling and gated-holdout evaluation with uncertainty,
+  customer segments, recommendation policies, and Qdrant parity.
 - src/recoflow/artifacts.py defines the training-to-serving embedding contract.
 - src/recoflow/train.py trains, evaluates, checkpoints, and exports.
 - src/recoflow/index.py uploads exported product vectors into Qdrant.
 - src/recoflow/vector_store.py owns Qdrant collection, batch upsert, and search.
 - src/recoflow/api.py serves personalized results with a popularity fallback.
-- tests/ covers split leakage, histories, models, metrics, artifacts, Qdrant, API, and
-  a small end-to-end training run.
+- tests/ covers split leakage, histories, models, metrics, rolling folds, artifacts,
+  Qdrant, API, and small end-to-end training and backtest runs.
 
 ## V1 boundaries
 
