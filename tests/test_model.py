@@ -25,3 +25,10 @@ def test_matrix_factorization_bpr_loss_is_finite():
     positive = model.score(torch.tensor([0, 1]), torch.tensor([1, 2]))
     negative = model.score(torch.tensor([0, 1]), torch.tensor([3, 1]))
     assert torch.isfinite(bpr_loss(positive, negative))
+
+
+def test_duplicate_batch_items_are_treated_as_additional_positives():
+    logits = torch.tensor([[1.0, 1.0, 0.0], [1.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+    loss = in_batch_softmax_loss(logits, item_ids=torch.tensor([4, 4, 7]))
+    assert torch.isfinite(loss)
+    assert loss < in_batch_softmax_loss(logits)
